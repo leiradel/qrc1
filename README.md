@@ -10,6 +10,11 @@ In the `src/zx81/zx81.asm` file there is code that plots the encoded message ont
 
 There's also a C version at `src/c/qrc1.c`, which I wrote only to validate that I could really read the original JavaScript that encodes the message (available in the second issue of the [Paged Out!](https://pagedout.institute/) magazine).
 
+## Build
+
+The Makefile in the `src` folder uses [zasm](https://k1.spdns.de/Develop/Projects/zasm/) to assemble the files and produce the `.p` file for a ZX81 emulator from the `src/zx81/zx81.asm` file. Just go into `src` and run `make`.
+
+`src/qrc1.asm` should assemble with virtually any Z80 assembler since it doesn't use anything but quite standard features found everywhere. If you do find issues when assembly `src/qrc1.asm` please let me know, and I'll try to fix it.
 
 ## Limitations
 
