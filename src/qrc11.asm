@@ -27,9 +27,6 @@ qrc11_shift_msg:
     rrd
     inc hl
 
-    ; HL points to the last byte of the message; save it for later.
-    push hl
-
     ; Pad the rest of the message with $ec and $11.
     ld a, 254
     sub c
