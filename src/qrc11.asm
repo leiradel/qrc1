@@ -80,6 +80,7 @@ qrc11_no_padding:
     ; Interleave message and ecc blocks.
     ; ------------------------------------------------------------------------
 
+qrc11_interleave:
     ld hl, qrc11_b1
     ld de, qrc11_message
     ld a, 50
@@ -270,7 +271,7 @@ qrc11_test_y:
     ; Outer loop test.
     ; dec ixl for dumb assemblers
     db $dd
-    dec h
+    dec l
     jr nz, qrc11_loop_i
 
     ; Restore the original encoded message, since the loops above zero it.
