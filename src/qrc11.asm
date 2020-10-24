@@ -28,7 +28,7 @@ qrc11_shift_msg:
     inc hl
 
     ; Pad the rest of the message with $ec and $11.
-    ld a, 254
+    ld a, 251
     sub c
     jr z, qrc11_no_padding
 
@@ -108,6 +108,7 @@ qrc11_d2:   push bc
             ld d, (hl)
             inc hl
             ld a, e
+            and 7
             srl d
             rr e
             srl d
@@ -149,7 +150,10 @@ qrc11_intl:
     ld c, 50 + 30
     add hl, bc
     ldi
-    ld bc, -50-51*4
+    ld c, 50 + 30
+    add hl, bc
+    ldi
+    ld bc, qrc11_b1 - qrc11_b5
     add hl, bc
     dec a
     jr nz, qrc11_intl
@@ -194,7 +198,7 @@ qrc11_loop_i:
         ld de, qrc11_ecc_poly
 
         ; Evaluate the inner loop count limit.
-        ld a, 11
+        ld a, 31
 
         ; add ixl for dumb assemblers
 	db $dd
