@@ -28,6 +28,27 @@ start:	ld	hl, qstr
 qrc11_module:
 	push	bc
 	push	hl
+	sla	b
+	sla	c
+	ld	a, 189
+	sub	b
+	ld	b, c
+	ld	c, a
+	ld	a, 50
+	add	a, b
+	ld	b, a
+	push	bc
+	call	PLOT_SUB
+	pop	bc
+	inc	b
+	push	bc
+	call	PLOT_SUB
+	pop	bc
+	inc	c
+	push	bc
+	call	PLOT_SUB
+	pop	bc
+	dec	b
 	call	PLOT_SUB
 	pop	hl
 	pop	bc
