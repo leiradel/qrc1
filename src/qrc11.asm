@@ -1,5 +1,29 @@
 ; https://github.com/leiradel/qrc1
 
+; ------------------------------------------------------------------------
+; Macros for some undocumented Z80 instructions.
+; ------------------------------------------------------------------------
+
+addixl: macro
+    db $dd
+    add a, l
+endm
+
+ldixh_a: macro
+    db $dd
+    ld h, a
+endm
+
+decixh: macro
+    db $dd
+    dec h
+endm
+
+decixl: macro
+    db $dd
+    dec l
+endm
+
 ; qrc11_message contains a $40 byte followed by the message length followed
 ; by the message (maximum 251 bytes).
 qrc11_encmessage:
@@ -199,17 +223,11 @@ qrc11_loop_i:
 
         ; Evaluate the inner loop count limit.
         ld a, 31
-
-        ; add ixl for dumb assemblers
-	db $dd
-	add a, l
-
+	addixl
         dec a
 
         ; IXH is inner loop counter (j) up to length(A) - i.
-        ; ld ixh, a for dumb assemblers
-	db $dd
-	ld h, a
+	ldixh_a
 
 qrc11_loop_j:
             ; A is B[j]
@@ -258,9 +276,7 @@ qrc11_test_y:
             inc de
 
         ; Inner loop test.
-        ; dec ixh for dumb assemblers
-	db $dd
-	dec h
+	decixh
 
         jr nz, qrc11_loop_j
 
@@ -270,9 +286,7 @@ qrc11_test_y:
         inc hl
 
     ; Outer loop test.
-    ; dec ixl for dumb assemblers
-    db $dd
-    dec l
+    decixl
     jr nz, qrc11_loop_i
 
     ; Restore the original encoded message, since the loops above zero it.
