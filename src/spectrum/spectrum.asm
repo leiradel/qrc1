@@ -15,9 +15,10 @@ start:	ld	hl, qstr
 	ld	a, b
 	or	a
 	jp	nz, REPORT_A
-	ld	a, c
+	or	c
+	jr	z, empty
 	cp	252
-	jp	nc, REPORT_A
+empty:	jp	nc, REPORT_A
 	ld	hl, qrc11_message + 1
 	ld	(hl), a
 	inc	hl
