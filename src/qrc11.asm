@@ -105,7 +105,12 @@ qrc11_interleave:
     ld hl, qrc11_b1
     ld de, qrc11_message
     ld a, 50
-    call qrc11_intl
+qrc11_dintl:
+    call qrc11_dint
+    ld bc, qrc11_b1 - qrc11_b5
+    add hl, bc
+    dec a
+    jr nz, qrc11_dintl
     ld hl, qrc11_b2 + 50
     ldi
     ld hl, qrc11_b3 + 50
@@ -116,7 +121,13 @@ qrc11_interleave:
     ldi
     ld hl, qrc11_b1_ecc
     ld a, 30
-    call qrc11_intl
+qrc11_eintl:
+    call qrc11_eint
+    ld bc, qrc11_b1_ecc - qrc11_b5_ecc
+    add hl, bc
+    dec a
+    jr nz, qrc11_eintl
+
 
     ; ------------------------------------------------------------------------
     ; Display QR code with checkerboard mask.
@@ -160,12 +171,17 @@ qrc11_d3:       rlca
 
 
     ; ------------------------------------------------------------------------
-    ; Interleave blocks.
+    ; Interleave bytes.
     ; ------------------------------------------------------------------------
 
-qrc11_intl:
+qrc11_eint:
+    ldi
+    ld bc, 50 + 30
+    jr qrc11_int
+qrc11_dint:
     ldi
     ld bc, 49 + 30
+qrc11_int:
     add hl, bc
     ldi
     ld c, 50 + 30
@@ -177,10 +193,6 @@ qrc11_intl:
     ld c, 50 + 30
     add hl, bc
     ldi
-    ld bc, qrc11_b1 - qrc11_b5
-    add hl, bc
-    dec a
-    jr nz, qrc11_intl
     ret
 
 
