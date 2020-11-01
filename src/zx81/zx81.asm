@@ -196,8 +196,17 @@ line0:
     ; Encode the message.
     call qrc1_encmessage
 
+    ; Set DE to the top-left character where the code will be printed.
+    ld hl, ($400c)
+    ld de, 33 * 6 + 11
+    add hl, de
+    ex de, hl
+
+    ; Set C to the upper-left pixel in the character.
+    ld c, 1
+
     ; Print it onto the screen.
-    call print_qrcode
+    call qrc1_print
 
     ret
 
@@ -241,206 +250,47 @@ xlate_table:
     ;  K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y   Z
     db 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
 
-print_qrcode:
-    ; Put the screen address for the top-left of the QR Code in DE.
-    ld hl, ($400c)
-    ld de, 33 * 6 + 11 - 22
-    add hl, de
-    ex de, hl
-
-    ; HL points to the fixed QR Code blocks. Here it also includes the
-    ; pre-computed format info.
-    ld hl, fixed_modules
-
-    ; 21 rows, but each character is two pixel height, so count to 11.
-    ld iyl, 11
-draw_fixed_row:
-        ; Update DE to the start of the next row; we do this here so that DE
-        ; is next to the desired location to start drawing the message blocks.
-        ld a, 22
-        add e
-        ld e, a
-        ld a, 0
-        adc d
-        ld d, a
-
-        ; Transfer the characters.
-        ld bc, 11
-        ldir
-    dec iyl
-    jr nz, draw_fixed_row
-
-    ; Draw the message and the ECC, DE points to the character just to the
-    ; right of the one where drawing starts.
-    dec de
-    ld c, 1 ; Upper-left pixel
-
-    ; Message bits.
-    ld hl, qrc1_message
-    ld b, $80 ; Most significant bit
-
-    ; Six nibbles up.
-    ld iyl, 6
-    call nibble_up_count
-
-    ; Update the cursor.
-    call pixel_down
-    call pixel_left
-    call pixel_left
-
-    ; Six nibbles down.
-    ld iyl, 6
-    call nibble_down_count
-
-    ; Update the cursor.
-    call pixel_up
-    call pixel_left
-    call pixel_left
-
-    ; Six nibbles up.
-    ld iyl, 6
-    call nibble_up_count
-
-    ; Update the cursor.
-    call pixel_down
-    call pixel_left
-    call pixel_left
-
-    ; Six nibbles down.
-    ld iyl, 6
-    call nibble_down_count
-
-    ; Update the cursor.
-    call pixel_up
-    call pixel_left
-    call pixel_left
-
-    ; Seven nibbles up.
-    ld iyl, 7
-    call nibble_up_count
-
-    ; Jump the timing marks.
-    call pixel_up
-
-    ; More three nibbles up.
-    ld iyl, 3
-    call nibble_up_count
-
-    ; Update the cursor.
-    call pixel_down
-    call pixel_left
-    call pixel_left
-
-    ; Three nibbles down.
-    ld iyl, 3
-    call nibble_down_count
-
-    ; Jump the timing marks.
-    call pixel_down
-
-    ; Seven nibbles down.
-    ld iyl, 7
-    call nibble_down_count
-
-    ; Update the cursor, two pixels to the left, nine pixels up.
-    call pixel_left
-    call pixel_left
-
-    ld iyl, 9
-loop_up8:
-        call pixel_up
-    dec iyl
-    jr nz, loop_up8
-
-    ; Two nibbles up.
-    ld iyl, 2
-    call nibble_up_count
-
-    ; Update the cursor, jump the timing marks.
-    call pixel_left
-    call pixel_left
-    call pixel_left
-    call pixel_down
-
-    ; Two nibbles down.
-    ld iyl, 2
-    call nibble_down_count
-
-    ; Update the cursor.
-    call pixel_left
-    call pixel_left
-    call pixel_up
-
-    ; Two nibbles up.
-    ld iyl, 2
-    call nibble_up_count
-
-    ; Update the cursor.
-    call pixel_left
-    call pixel_left
-    call pixel_down
-
-    ; Two nibbles down.
-    ld iyl, 2
-    call nibble_down_count
-
-    ; Done.
-    ret
-
-fixed_modules:
-    db $07, $03, $03, $05, $04, $00, $00, $07, $03, $03, $05
-    db $05, $80, $05, $05, $00, $00, $00, $05, $80, $05, $05
-    db $05, $03, $01, $05, $01, $00, $00, $05, $03, $01, $05
-    db $03, $03, $03, $01, $01, $01, $01, $03, $03, $03, $01
-    db $01, $01, $01, $01, $00, $00, $00, $00, $01, $02, $00
-    db $00, $00, $00, $01, $00, $00, $00, $00, $00, $00, $00
-    db $00, $00, $00, $01, $04, $00, $00, $00, $00, $00, $00
-    db $07, $03, $03, $05, $00, $00, $00, $00, $00, $00, $00
-    db $05, $80, $05, $05, $01, $00, $00, $00, $00, $00, $00
-    db $05, $03, $01, $05, $01, $00, $00, $00, $00, $00, $00
-    db $03, $03, $03, $01, $01, $00, $00, $00, $00, $00, $00
-
 ; Moves the cursor one pixel to the left.
-pixel_left:
+qrc_pixel_left:
     ; 1 -> 2 | 0001 -> 0010 dec de
     ; 4 -> 8 | 0100 -> 1000 dec de
     ; 2 -> 1 | 0010 -> 0001
     ; 8 -> 4 | 1000 -> 0100
     ld a, 5
     and c
-    jr z, dont_dec
+    jr z, qrc_dont_dec
         sla c
         dec de
         ret
-dont_dec:
+qrc_dont_dec:
     srl c
     ret
 
 ; Moves the cursor one pixel to the right.
-pixel_right:
+qrc_pixel_right:
     ; 1 -> 2 | 0001 -> 0010
     ; 4 -> 8 | 0100 -> 1000
     ; 2 -> 1 | 0010 -> 0001 inc de
     ; 8 -> 4 | 1000 -> 0100 inc de
     ld a, 5
     and c
-    jr nz, dont_inc
+    jr nz, qrc_dont_inc
         srl c
         inc de
         ret
-dont_inc:
+qrc_dont_inc:
     sla c
     ret
 
 ; Moves the cursor one pixel up.
-pixel_up:
+qrc_pixel_up:
     ; 1 -> 4 | 0001 -> 0100 sub de, 33
     ; 2 -> 8 | 0010 -> 1000 sub de, 33
     ; 4 -> 1 | 0100 -> 0001
     ; 8 -> 2 | 1000 -> 0010
     ld a, 3
     and c
-    jr z, dont_sub
+    jr z, qrc_dont_sub
         sla c
         sla c
         ld a, e
@@ -450,20 +300,20 @@ pixel_up:
         sbc 0
         ld d, a
         ret
-dont_sub:
+qrc_dont_sub:
     srl c
     srl c
     ret
 
 ; Moves the cursor one pixel down.
-pixel_down:
+qrc_pixel_down:
     ; 1 -> 4 | 0001 -> 0100
     ; 2 -> 8 | 0010 -> 1000
     ; 4 -> 1 | 0100 -> 0001 add de, 33
     ; 8 -> 2 | 1000 -> 0010 add de, 33
     ld a, 3
     and c
-    jr nz, dont_add
+    jr nz, qrc_dont_add
         srl c
         srl c
         ld a, e
@@ -473,64 +323,22 @@ pixel_down:
         adc 0
         ld d, a
         ret
-dont_add:
+qrc_dont_add:
     sla c
     sla c
     ret
 
-nibble_up_count:
-        call set_pixel_if
-        call pixel_left
-        call set_pixel_if
-        call pixel_up
-        call pixel_right
-        call set_pixel_if
-        call pixel_left
-        call set_pixel_if
-        call pixel_up
-        call pixel_right
-    dec iyl
-    jr nz, nibble_up_count
-    ret
-
-nibble_down_count:
-        call set_pixel_if
-        call pixel_left
-        call set_pixel_if
-        call pixel_down
-        call pixel_right
-        call set_pixel_if
-        call pixel_left
-        call set_pixel_if
-        call pixel_down
-        call pixel_right
-    dec iyl
-    jr nz, nibble_down_count
-    ret
-
-set_pixel_if:
-    ld a, (hl)
-    and b
-    call nz, set_pixel
-
-    srl b
-    ret nz
-
-    inc hl
-    ld b, $80
-    ret
-
-set_pixel:
+qrc_set_pixel:
     ld a, (de)
     bit 7, a
-    jr z, invert1
+    jr z, qrc_invert1
         xor $8f
-invert1:
+qrc_invert1:
     or c
     bit 3, a
-    jr z, invert2
+    jr z, qrc_invert2
         xor $8f
-invert2:
+qrc_invert2:
     ld (de), a
     ret
 
@@ -657,15 +465,39 @@ line130_end:
 
     db 0, 140
     dw line140_end - $ - 2
-    db _RAND, _USR, _VAL, _QUOTE, _1, _6, _5, _1, _6, _QUOTE, $76
+    db _FOR, _I, _EQUAL, _VAL, _QUOTE, _6, _QUOTE
+    db _TO, _VAL, _QUOTE, _1, _6, _QUOTE
+    db $76
 line140_end:
 
 ; Line 150
 
     db 0, 150
     dw line150_end - $ - 2
+    db _PRINT, _AT, _I, _COMMA, _VAL, _QUOTE, _1, _0, _QUOTE, _SCOLON, _QUOTE
+    ds 11
+    db _QUOTE, $76
+line150_end
+
+; Line 160
+    db 0, 160
+    dw line160_end - $ - 2
+    db _NEXT, _I, $76
+line160_end
+
+; Line 170
+
+    db 0, 170
+    dw line170_end - $ - 2
+    db _RAND, _USR, _VAL, _QUOTE, _1, _6, _5, _1, _6, _QUOTE, $76
+line170_end:
+
+; Line 180
+
+    db 0, 180
+    dw line150_end - $ - 2
     db _GOTO, _VAL, _QUOTE, _3, _0, _QUOTE, $76
-line150_end:
+line180_end:
 
 ; Display file
 

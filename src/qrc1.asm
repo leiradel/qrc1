@@ -191,6 +191,213 @@ qrc1_xor_mask:
     djnz qrc1_xor_mask
     ret
 
+qrc1_print:
+    ; Draw the fixed modules.
+    ld hl, qrc1_fixed_modules
+
+    ; 21 lines.
+    ld iyl, 21
+
+qrc1_print_line:
+        ; Each line has 3 bytes to cover 21 modules.
+        ld iyh, 3
+
+qrc1_print_byte:
+            ld a, (hl)
+            inc hl
+
+            ; Set the module depending on the bit pattern.
+            ld b, 8
+
+qrc1_print_bits:
+                rla
+
+                push af
+                call c, qrc_set_pixel
+                call qrc_pixel_right
+                pop af
+            djnz qrc1_print_bits
+
+        dec iyh
+        jr nz, qrc1_print_byte
+
+        ; When all rows have been printed, leave the cursor one module to the
+        ; right of the bottom-right module.
+        dec iyl
+        jr z, qrc1_print_end
+
+        ; Otherwise, go down on pixel and left 24 pixels to start a new line.
+        call qrc_pixel_down
+        ld b, 24
+
+qrc1_print_cr:
+            call qrc_pixel_left
+        djnz qrc1_print_cr
+
+    jr qrc1_print_line
+
+qrc1_print_end:
+
+    ; Move the cursor to the first module of the encoded message.
+    ld b, 4
+qrc1_move_left:
+        call qrc_pixel_left
+    djnz qrc1_move_left
+
+    ; Message bits.
+    ld hl, qrc1_message
+    ld b, $80 ; Most significant bit
+
+    ; Six nibbles up.
+    ld iyl, 6
+    call qrc1_nibbles_up
+
+    ; Update the cursor.
+    call qrc_pixel_down
+    call qrc_pixel_left
+    call qrc_pixel_left
+
+    ; Six nibbles down.
+    ld iyl, 6
+    call qrc1_nibbles_down
+
+    ; Update the cursor.
+    call qrc_pixel_up
+    call qrc_pixel_left
+    call qrc_pixel_left
+
+    ; Six nibbles up.
+    ld iyl, 6
+    call qrc1_nibbles_up
+
+    ; Update the cursor.
+    call qrc_pixel_down
+    call qrc_pixel_left
+    call qrc_pixel_left
+
+    ; Six nibbles down.
+    ld iyl, 6
+    call qrc1_nibbles_down
+
+    ; Update the cursor.
+    call qrc_pixel_up
+    call qrc_pixel_left
+    call qrc_pixel_left
+
+    ; Seven nibbles up.
+    ld iyl, 7
+    call qrc1_nibbles_up
+
+    ; Jump the timing marks.
+    call qrc_pixel_up
+
+    ; More three nibbles up.
+    ld iyl, 3
+    call qrc1_nibbles_up
+
+    ; Update the cursor.
+    call qrc_pixel_down
+    call qrc_pixel_left
+    call qrc_pixel_left
+
+    ; Three nibbles down.
+    ld iyl, 3
+    call qrc1_nibbles_down
+
+    ; Jump the timing marks.
+    call qrc_pixel_down
+
+    ; Seven nibbles down.
+    ld iyl, 7
+    call qrc1_nibbles_down
+
+    ; Update the cursor, two pixels to the left, nine pixels up.
+    call qrc_pixel_left
+    call qrc_pixel_left
+
+    ld iyl, 9
+qrc1_loop_up8:
+        call qrc_pixel_up
+    dec iyl
+    jr nz, qrc1_loop_up8
+
+    ; Two nibbles up.
+    ld iyl, 2
+    call qrc1_nibbles_up
+
+    ; Update the cursor, jump the timing marks.
+    call qrc_pixel_left
+    call qrc_pixel_left
+    call qrc_pixel_left
+    call qrc_pixel_down
+
+    ; Two nibbles down.
+    ld iyl, 2
+    call qrc1_nibbles_down
+
+    ; Update the cursor.
+    call qrc_pixel_left
+    call qrc_pixel_left
+    call qrc_pixel_up
+
+    ; Two nibbles up.
+    ld iyl, 2
+    call qrc1_nibbles_up
+
+    ; Update the cursor.
+    call qrc_pixel_left
+    call qrc_pixel_left
+    call qrc_pixel_down
+
+    ; Two nibbles down.
+    ld iyl, 2
+    call qrc1_nibbles_down
+
+    ; Done.
+    ret
+
+qrc1_nibbles_up:
+        call qrc1_set_pixel_if
+        call qrc_pixel_left
+        call qrc1_set_pixel_if
+        call qrc_pixel_up
+        call qrc_pixel_right
+        call qrc1_set_pixel_if
+        call qrc_pixel_left
+        call qrc1_set_pixel_if
+        call qrc_pixel_up
+        call qrc_pixel_right
+    dec iyl
+    jr nz, qrc1_nibbles_up
+    ret
+
+qrc1_nibbles_down:
+        call qrc1_set_pixel_if
+        call qrc_pixel_left
+        call qrc1_set_pixel_if
+        call qrc_pixel_down
+        call qrc_pixel_right
+        call qrc1_set_pixel_if
+        call qrc_pixel_left
+        call qrc1_set_pixel_if
+        call qrc_pixel_down
+        call qrc_pixel_right
+    dec iyl
+    jr nz, qrc1_nibbles_down
+    ret
+
+qrc1_set_pixel_if:
+    ld a, (hl)
+    and b
+    call nz, qrc_set_pixel
+
+    srl b
+    ret nz
+
+    inc hl
+    ld b, $80
+    ret
+
 ; The ECC level M polynomial.
 qrc1_ecc_poly:
     db 1, 216, 194, 159, 111, 199, 94, 95, 113, 157, 193
@@ -210,3 +417,27 @@ qrc1_message:
 ; Some scratch bytes.
 qrc1_scratch:
     ds 26
+
+; The fixed modules encoded in binary.
+qrc1_fixed_modules:
+    db $fe, $03, $f8
+    db $82, $82, $08
+    db $ba, $02, $e8
+    db $ba, $02, $e8
+    db $ba, $82, $e8
+    db $82, $02, $08
+    db $fe, $ab, $f8
+    db $00, $00, $00
+    db $aa, $00, $90
+    db $00, $00, $00
+    db $02, $00, $00
+    db $00, $00, $00
+    db $02, $00, $00
+    db $00, $80, $00
+    db $fe, $00, $00
+    db $82, $00, $00
+    db $ba, $80, $00
+    db $ba, $00, $00
+    db $ba, $80, $00
+    db $82, $00, $00
+    db $fe, $80, $00
