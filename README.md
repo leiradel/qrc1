@@ -27,9 +27,11 @@ The generator is in the `src/qrc1.asm` file. It doesn't output anything by itsel
 
 ### ZX81
 
-In the `src/zx81/zx81.asm` file there is code that plots the encoded message onto the ZX81 screen. The assembly file also contains a BASIC program that takes care of user input reading, poking the message into the appropriate memory location for the encoder to do its job, and calling into the machine code routine that will encode the message and draw it onto the screen.
+In the `src/zx81/zx81.asm` file there is code that plots the encoded message onto the ZX81 screen. It must be used together with `src/zx81/zx81.bas`, which takes care of user input reading, poking the message into the appropriate memory location for the encoder to do its job, and calling into the machine code routine that will encode the message and draw it onto the screen.
 
-The Makefile in the `src/zx81` folder uses [zasm](https://k1.spdns.de/Develop/Projects/zasm/) to assemble the files and produce the `.p` file for a ZX81 emulator from the `src/zx81/zx81.asm` file. Just go into `src/zx81` and run `make`.
+The Makefile in the `src/zx81` folder uses [zasm](https://k1.spdns.de/Develop/Projects/zasm/) to assemble the assembly file, and [zxtext2p](http://freestuff.grok.co.uk/zxtext2p/index.html) to convert the BASIC file to a `.p` file. A Lua script will orchestrate everything and produce the final `.p` file to use with an emulator. Just go into `src/zx81` and run `make`.
+
+> `zxtext2p` has been slightly changed to auto-run the generated program at the first BASIC line.
 
 ## Limitations
 
