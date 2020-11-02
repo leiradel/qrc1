@@ -193,7 +193,7 @@ qrc1_xor_mask:
 
 qrc1_print:
     ; Draw the fixed modules.
-    ld hl, qrc1_fixed_modules
+    ld de, qrc1_fixed_modules
 
     ; 21 lines.
     ld iyl, 21
@@ -203,8 +203,8 @@ qrc1_print_line:
         ld iyh, 3
 
 qrc1_print_byte:
-            ld a, (hl)
-            inc hl
+            ld a, (de)
+            inc de
 
             ; Set the module depending on the bit pattern.
             ld b, 8
@@ -245,7 +245,7 @@ qrc1_move_left:
     djnz qrc1_move_left
 
     ; Message bits.
-    ld hl, qrc1_message
+    ld de, qrc1_message
     ld b, $80 ; Most significant bit
 
     ; Six nibbles up.
@@ -387,14 +387,14 @@ qrc1_nibbles_down:
     ret
 
 qrc1_set_pixel_if:
-    ld a, (hl)
+    ld a, (de)
     and b
     call nz, qrc_set_pixel
 
     srl b
     ret nz
 
-    inc hl
+    inc de
     ld b, $80
     ret
 

@@ -196,11 +196,10 @@ line0:
     ; Encode the message.
     call qrc1_encmessage
 
-    ; Set DE to the top-left character where the code will be printed.
+    ; Set HL to the top-left character where the code will be printed.
     ld hl, ($400c)
     ld de, 33 * 6 + 11
     add hl, de
-    ex de, hl
 
     ; Set C to the upper-left pixel in the character.
     ld c, 1
@@ -252,15 +251,15 @@ xlate_table:
 
 ; Moves the cursor one pixel to the left.
 qrc_pixel_left:
-    ; 1 -> 2 | 0001 -> 0010 dec de
-    ; 4 -> 8 | 0100 -> 1000 dec de
+    ; 1 -> 2 | 0001 -> 0010 dec hl
+    ; 4 -> 8 | 0100 -> 1000 dec hl
     ; 2 -> 1 | 0010 -> 0001
     ; 8 -> 4 | 1000 -> 0100
     ld a, 5
     and c
     jr z, qrc_dont_dec
         sla c
-        dec de
+        dec hl
         ret
 qrc_dont_dec:
     srl c
@@ -270,13 +269,13 @@ qrc_dont_dec:
 qrc_pixel_right:
     ; 1 -> 2 | 0001 -> 0010
     ; 4 -> 8 | 0100 -> 1000
-    ; 2 -> 1 | 0010 -> 0001 inc de
-    ; 8 -> 4 | 1000 -> 0100 inc de
+    ; 2 -> 1 | 0010 -> 0001 inc hl
+    ; 8 -> 4 | 1000 -> 0100 inc hl
     ld a, 5
     and c
     jr nz, qrc_dont_inc
         srl c
-        inc de
+        inc hl
         ret
 qrc_dont_inc:
     sla c
@@ -284,8 +283,8 @@ qrc_dont_inc:
 
 ; Moves the cursor one pixel up.
 qrc_pixel_up:
-    ; 1 -> 4 | 0001 -> 0100 sub de, 33
-    ; 2 -> 8 | 0010 -> 1000 sub de, 33
+    ; 1 -> 4 | 0001 -> 0100 sub hl, 33
+    ; 2 -> 8 | 0010 -> 1000 sub hl, 33
     ; 4 -> 1 | 0100 -> 0001
     ; 8 -> 2 | 1000 -> 0010
     ld a, 3
@@ -293,12 +292,12 @@ qrc_pixel_up:
     jr z, qrc_dont_sub
         sla c
         sla c
-        ld a, e
+        ld a, l
         sub 33
-        ld e, a
-        ld a, d
+        ld l, a
+        ld a, h
         sbc 0
-        ld d, a
+        ld h, a
         ret
 qrc_dont_sub:
     srl c
@@ -309,19 +308,19 @@ qrc_dont_sub:
 qrc_pixel_down:
     ; 1 -> 4 | 0001 -> 0100
     ; 2 -> 8 | 0010 -> 1000
-    ; 4 -> 1 | 0100 -> 0001 add de, 33
-    ; 8 -> 2 | 1000 -> 0010 add de, 33
+    ; 4 -> 1 | 0100 -> 0001 add hl, 33
+    ; 8 -> 2 | 1000 -> 0010 add hl, 33
     ld a, 3
     and c
     jr nz, qrc_dont_add
         srl c
         srl c
-        ld a, e
+        ld a, l
         add 33
-        ld e, a
-        ld a, d
+        ld l, a
+        ld a, h
         adc 0
-        ld d, a
+        ld h, a
         ret
 qrc_dont_add:
     sla c
@@ -329,7 +328,7 @@ qrc_dont_add:
     ret
 
 qrc_set_pixel:
-    ld a, (de)
+    ld a, (hl)
     bit 7, a
     jr z, qrc_invert1
         xor $8f
@@ -339,7 +338,7 @@ qrc_invert1:
     jr z, qrc_invert2
         xor $8f
 qrc_invert2:
-    ld (de), a
+    ld (hl), a
     ret
 
 #include "../qrc1.asm"
