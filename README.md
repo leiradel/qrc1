@@ -2,6 +2,8 @@
 
 A QR Code version 1 generator written in Z80 assembly.
 
+![https://cutt.ly/QRC1](https://raw.githubusercontent.com/leiradel/qrc1/master/qrc1.png)
+
 ## Source Code
 
 The generator is in the `src/qrc1.asm` file. It doesn't output anything by itself, it only encodes the given message. To actually see something, some platform specific code must be written that takes the encoded message and translates it to pixels on the screen.
