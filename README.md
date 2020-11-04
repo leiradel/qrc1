@@ -45,6 +45,8 @@ Even with those limits, the generated QR Code has 14 bytes worth of data which m
 
 There's a C version at `etc/qrc1.c`, which I wrote only to validate that I could really understand the original JavaScript that encodes the message (available in the second issue of the [Paged Out!](https://pagedout.institute/) magazine).
 
+There's also a modified version of **zxtext2p** that will auto-run the generated program starting at the first line.
+
 ## License
 
 MIT, enjoy.
