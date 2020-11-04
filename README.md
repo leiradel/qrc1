@@ -31,6 +31,8 @@ In the `src/zx81/zx81.asm` file there is code that plots the encoded message ont
 
 The Makefile in the `src/zx81` folder uses [zasm](https://k1.spdns.de/Develop/Projects/zasm/) to assemble the assembly file, and [zxtext2p](http://freestuff.grok.co.uk/zxtext2p/index.html) to convert the BASIC file to a `.p` file. A Lua script will orchestrate everything and produce the final `.p` file to use with an emulator. Just go into `src/zx81` and run `make`.
 
+Notice that the program must run in FAST mode, as it uses the `IY` register. While it would be possible not to use it, at the expense of performance, there's not really much to see on the screen while the message is encoded and the barcode printed onto the screen.
+
 > `zxtext2p` has been slightly changed to auto-run the generated program at the first BASIC line.
 
 ## Limitations
