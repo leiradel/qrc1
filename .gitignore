@@ -4,6 +4,12 @@ etc/zxtext2p.exe
 etc/qrc1
 etc/qrc1.exe
 
+src/debug/debug
+src/debug/debug.exe
+src/debug/debug.bin
+src/debug/debug.h
+src/debug/debug.png
+
 *.p
 
 # Assembler files
