@@ -112,7 +112,7 @@ qrc_pixel_up:
         sub 33
         ld l, a
         ld a, h
-        sbc 0
+        sbc a, 0
         ld h, a
         ret
 qrc_dont_sub:
@@ -132,10 +132,10 @@ qrc_pixel_down:
         srl c
         srl c
         ld a, l
-        add 33
+        add a, 33
         ld l, a
         ld a, h
-        adc 0
+        adc a, 0
         ld h, a
         ret
 qrc_dont_add:
@@ -157,4 +157,4 @@ qrc_invert2:
     ld (hl), a
     ret
 
-#include "../qrc1.asm"
+include "../qrc1.asm"

@@ -1,25 +1,29 @@
-local zasm = arg[1] or '../../../zasm/Linux/zasm'
+local pasmo = arg[1] or '../../../pasmo-0.5.3/pasmo'
 local zxtext2p = arg[2] or '../../etc/zxtext2p'
 
 -- Assemble
-assert(os.execute(string.format('%s -uwy zx81.asm zx81asm.bin', zasm)))
+assert(os.execute(string.format('%s --bin zx81.asm zx81asm.bin zx81.lst', pasmo)))
 
 -- Get information from the assembled file
 local f = assert(io.open('zx81.lst', 'rb'))
-local main, message, size
+local main, message
 
 for line in f:lines() do
-    local symbol, value = line:match('([^%s]-)%s+=%s+%$....%s+=%s+(%d+).*')
+    local symbol, value = line:match('([^%s]+)%s+EQU%s+([%x]+)H')
+    print(symbol, value, line)
 
     if symbol == 'main' then
-        main = tonumber(value)
+        main = tonumber(value, 16)
     elseif symbol == 'qrc1_message' then
-        message = tonumber(value)
-    elseif symbol == '_size' then
-        size = tonumber(value)
+        message = tonumber(value, 16)
     end
 end
 
+f:close()
+
+-- Get the size of the assembled file
+local f = assert(io.open('zx81asm.bin', 'rb'))
+local size = #f:read('*a')
 f:close()
 
 -- Create the BASIC list

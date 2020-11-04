@@ -84,7 +84,7 @@ qrc1_loop_i:
 
         ; Evaluate the inner loop count limit.
         ld a, 11
-        add iyl
+        add a, iyl
         dec a
 
         ; IYH is inner loop counter (j) up to length(A) - i.
