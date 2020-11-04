@@ -16,7 +16,7 @@ The generator is in the `src/qrc1.asm` file. It doesn't output anything by itsel
     * `qrc_pixel_up`: move the current pixel cursor up
     * `qrc_pixel_down`: move the current pixel cursor down
     * `qrc_set_pixel`: set (make black) the current pixel
-        * These routines are free to use `A`, `C`, `H`, and `L`. `A` is changed by the caller so it should be used only for temporary values, but `C`, `H`, and `L` are **not** changed and can be used for persistent values.
+        * These routines are free to use `A`, `C`, `H`, and `L`. `A` is changed by the caller so it should be used only for temporary values, but `C`, `H`, and `L` are **not** changed and can be used for persistent values. Do not change any other registers.
 1. Set the byte at `qrc1_message` to the message length (maximum 14 bytes)
 1. Write the message bytes after the length
 1. Call `qrc1_encmessage` to encode the message
