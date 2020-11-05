@@ -10,7 +10,6 @@ local main, message
 
 for line in f:lines() do
     local symbol, value = line:match('([^%s]+)%s+EQU%s+([%x]+)H')
-    print(symbol, value, line)
 
     if symbol == 'main' then
         main = tonumber(value, 16)
