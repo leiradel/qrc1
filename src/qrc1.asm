@@ -248,41 +248,28 @@ qrc1_move_left:
     ld de, qrc1_message
     ld b, $80 ; Most significant bit
 
-    ; Six nibbles up.
-    ld iyl, 6
-    call qrc1_nibbles_up
+    ld iyh, 2
+qrc1_zigzag1:
+        ; Six nibbles up.
+        ld iyl, 6
+        call qrc1_nibbles_up
 
-    ; Update the cursor.
-    call qrc_pixel_down
-    call qrc_pixel_left
-    call qrc_pixel_left
+        ; Update the cursor.
+        call qrc_pixel_down
+        call qrc_pixel_left
+        call qrc_pixel_left
 
-    ; Six nibbles down.
-    ld iyl, 6
-    call qrc1_nibbles_down
+        ; Six nibbles down.
+        ld iyl, 6
+        call qrc1_nibbles_down
 
-    ; Update the cursor.
-    call qrc_pixel_up
-    call qrc_pixel_left
-    call qrc_pixel_left
+        ; Update the cursor.
+        call qrc_pixel_up
+        call qrc_pixel_left
+        call qrc_pixel_left
 
-    ; Six nibbles up.
-    ld iyl, 6
-    call qrc1_nibbles_up
-
-    ; Update the cursor.
-    call qrc_pixel_down
-    call qrc_pixel_left
-    call qrc_pixel_left
-
-    ; Six nibbles down.
-    ld iyl, 6
-    call qrc1_nibbles_down
-
-    ; Update the cursor.
-    call qrc_pixel_up
-    call qrc_pixel_left
-    call qrc_pixel_left
+    dec iyh
+    jr nz, qrc1_zigzag1
 
     ; Seven nibbles up.
     ld iyl, 7
@@ -321,37 +308,33 @@ qrc1_loop_up8:
     dec iyl
     jr nz, qrc1_loop_up8
 
-    ; Two nibbles up.
-    ld iyl, 2
-    call qrc1_nibbles_up
+    ld iyh, 2
+qrc1_zigzag2:
+        ; Two nibbles up.
+        ld iyl, 2
+        call qrc1_nibbles_up
 
-    ; Update the cursor, jump the timing marks.
-    call qrc_pixel_left
-    call qrc_pixel_left
-    call qrc_pixel_left
-    call qrc_pixel_down
+        ; Update the cursor.
+        call qrc_pixel_left
+        call qrc_pixel_left
 
-    ; Two nibbles down.
-    ld iyl, 2
-    call qrc1_nibbles_down
+        ld a, iyh
+        cp 2
+        call z, qrc_pixel_left ; jump the timing marks only the first iteration.
 
-    ; Update the cursor.
-    call qrc_pixel_left
-    call qrc_pixel_left
-    call qrc_pixel_up
+        call qrc_pixel_down
 
-    ; Two nibbles up.
-    ld iyl, 2
-    call qrc1_nibbles_up
+        ; Two nibbles down.
+        ld iyl, 2
+        call qrc1_nibbles_down
 
-    ; Update the cursor.
-    call qrc_pixel_left
-    call qrc_pixel_left
-    call qrc_pixel_down
+        ; Update the cursor.
+        call qrc_pixel_left
+        call qrc_pixel_left
+        call qrc_pixel_up
 
-    ; Two nibbles down.
-    ld iyl, 2
-    call qrc1_nibbles_down
+    dec iyh
+    jr nz, qrc1_zigzag2
 
     ; Done.
     ret
