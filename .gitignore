@@ -11,6 +11,7 @@ src/debug/debug.h
 src/debug/debug.png
 
 *.p
+*.tap
 
 # Assembler files
 *.lst
