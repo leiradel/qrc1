@@ -2,8 +2,6 @@
 
 A QR Code version 1 generator written in Z80 assembly.
 
-![https://cutt.ly/QRC1](https://raw.githubusercontent.com/leiradel/qrc1/master/qrc1.png)
-
 ## Source Code
 
 The generator is in the `src/qrc1.asm` file. It doesn't output anything by itself, it only encodes the given message. To actually see something, some platform specific code must be written that takes the encoded message and translates it to pixels on the screen.
@@ -29,13 +27,25 @@ The generator is in the `src/qrc1.asm` file. It doesn't output anything by itsel
 
 ### ZX81
 
+![https://cutt.ly/QRC1](https://raw.githubusercontent.com/leiradel/qrc1/master/qrc1.png)
+
 In the `src/zx81/zx81.asm` file there is code that plots the encoded message onto the ZX81 screen. It must be used together with `src/zx81/zx81.bas`, which takes care of user input reading, poking the message into the appropriate memory location for the encoder to do its job, and calling into the machine code routine that will encode the message and draw it onto the screen.
 
-The Makefile in the `src/zx81` folder uses [zasm](https://k1.spdns.de/Develop/Projects/zasm/) to assemble the assembly file, and [zxtext2p](http://freestuff.grok.co.uk/zxtext2p/index.html) to convert the BASIC file to a `.p` file. A Lua script will orchestrate everything and produce the final `.p` file to use with an emulator. Just go into `src/zx81` and run `make`.
+The Makefile in the `src/zx81` folder uses [Pasmo](http://pasmo.speccy.org/) to assemble the assembly file, and [zxtext2p](http://freestuff.grok.co.uk/zxtext2p/index.html) to convert the BASIC file to a `.p` file. A [Lua](https://www.lua.org/) script will orchestrate everything and produce the final `.p` file to use with an emulator. Just go into `src/zx81` and run `make`.
 
 Notice that the program must run in FAST mode, as it uses the `IY` register. While it would be possible not to use it, at the expense of performance, there's not really much to see on the screen while the message is encoded and the barcode printed onto the screen.
 
 > `zxtext2p` has been slightly changed to auto-run the generated program at the first BASIC line.
+
+### ZX Spectrum
+
+![https://cutt.ly/QRC1](https://raw.githubusercontent.com/leiradel/qrc1/master/qrc1zxs.png)
+
+Similarly to the ZX81, the `src/spectrum/zxs.asm` has code to encode and plot messages as QR Codes for the ZX Spectrum. The `src/spectrum/zxs.bas` file has a loader for the binary part of the program, and BASIC commands that will read the message, poke it to the appropriate memory location, and call the encoder and plotter.
+
+[zmakebas](https://github.com/z00m128/zmakebas) was used to convert the BASIC program to a `.tap` file, and a Lua script will take care of building everything and producing the final tape.
+
+There are three different plotters for the ZX Spectrum, each one using a different size for the barcode modules: 1x1 square pixels, 2x2, and 4x4. It can be easily selected by commenting and uncommenting the appropriate lines at the top of `src/spectrum/zxs.asm`.
 
 ## Limitations
 
