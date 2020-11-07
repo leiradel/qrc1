@@ -5,6 +5,7 @@ CMD_PIXEL_UP    equ 2
 CMD_PIXEL_DOWN  equ 3
 CMD_SET_PIXEL   equ 4
 CMD_MESSAGE     equ 5
+CMD_PRINT_WORD  equ 6
 
     org 0
 

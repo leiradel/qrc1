@@ -28,6 +28,7 @@
 #define CMD_PIXEL_DOWN  3
 #define CMD_SET_PIXEL   4
 #define CMD_MESSAGE     5
+#define CMD_PRINT_WORD  6
 
 typedef struct {
     // CPU
@@ -36,8 +37,9 @@ typedef struct {
     uint8_t mem[65536];
 
     // Terminal
-    int is_writing;
+    int is_writing, byte_count;
     char message[MAX_LENGTH];
+    uint8_t bytes[2];
 
     // QR Code
     uint8_t pixels[MAX_SIZE][MAX_SIZE];
@@ -63,10 +65,10 @@ static uint64_t tick(int const num_ticks, uint64_t pins, void* const userdata) {
     else if (pins & Z80_IORQ) {
         uint16_t const address = Z80_GET_ADDR(pins);
 
-        if ((address & 0xff) == CMD_PORT && (pins & Z80_WR)) {
+        if ((address & 0xff) == CMD_PORT && (pins & Z80_WR) != 0) {
             uint8_t const data = Z80_GET_DATA(pins);
 
-            if (state->is_writing) {
+            if (state->is_writing != 0) {
                 if (data != 0) {
                     if (state->is_writing < MAX_LENGTH) {
                         state->message[state->is_writing++ - 1] = data;
@@ -78,6 +80,17 @@ static uint64_t tick(int const num_ticks, uint64_t pins, void* const userdata) {
                     printf("%s\n", state->message);
                 }
             }
+            else if (state->byte_count != 0) {
+                state->bytes[state->byte_count-- - 1] = data;
+
+                if (state->byte_count == 0) {
+                    for (int i = 0; i < 2; i++) {
+                        printf("%02x", state->bytes[i]);
+                    }
+
+                    printf("\n");
+                }
+            }
             else {
                 switch (data) {
                     case CMD_PIXEL_LEFT:  state->x--; break;
@@ -85,6 +98,7 @@ static uint64_t tick(int const num_ticks, uint64_t pins, void* const userdata) {
                     case CMD_PIXEL_UP:    state->y--; break;
                     case CMD_PIXEL_DOWN:  state->y++; break;
                     case CMD_MESSAGE:     state->is_writing = 1; break;
+                    case CMD_PRINT_WORD:  state->byte_count = 2; break;
 
                     case CMD_SET_PIXEL: {
                         if (state->x >= 0 && state->x < MAX_SIZE && state->y >= 0 && state->y < MAX_SIZE) {
@@ -114,7 +128,7 @@ static void setup(State* const state) {
     state->done = 0;
     memcpy(state->mem, debug_bin, debug_bin_len);
 
-    state->is_writing = 0;
+    state->is_writing = state->byte_count = 0;
 
     memset(state->pixels, 0xff, sizeof(state->pixels));
     state->x = state->y = 0;
