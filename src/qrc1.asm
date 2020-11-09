@@ -337,9 +337,7 @@ qrc1_pixel_up_9_loop:
 qrc1_nibble_up_7:
     call qrc1_nibble_up_1
 qrc1_nibble_up_6:
-    call qrc1_nibble_up_1
-    call qrc1_nibble_up_1
-    call qrc1_nibble_up_1
+    call qrc1_nibble_up_3
 qrc1_nibble_up_3:
     call qrc1_nibble_up_1
 qrc1_nibble_up_2:
@@ -359,9 +357,7 @@ qrc1_nibble_up_1:
 qrc1_nibble_down_7:
     call qrc1_nibble_down_1
 qrc1_nibble_down_6:
-    call qrc1_nibble_down_1
-    call qrc1_nibble_down_1
-    call qrc1_nibble_down_1
+    call qrc1_nibble_down_3
 qrc1_nibble_down_3:
     call qrc1_nibble_down_1
 qrc1_nibble_down_2:
