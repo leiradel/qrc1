@@ -228,10 +228,10 @@ qrc1_print_bits:
 
         ; Otherwise, go down on pixel and left 24 pixels to start a new line.
         call qrc_pixel_down
-        ld b, 24
+        ld b, 12
 
 qrc1_print_cr:
-            call qrc_pixel_left
+            call qrc1_pixel_left_2
         djnz qrc1_print_cr
 
     jr qrc1_print_line
@@ -239,147 +239,189 @@ qrc1_print_cr:
 qrc1_print_end:
 
     ; Move the cursor to the first module of the encoded message.
-    ld b, 4
-qrc1_move_left:
-        call qrc_pixel_left
-    djnz qrc1_move_left
+    call qrc1_pixel_left_2
+    call qrc1_pixel_left_2
 
     ; Message bits.
     ld de, qrc1_message
     ld b, $80 ; Most significant bit
 
-    ld iyh, 2
-qrc1_zigzag1:
-        ; Six nibbles up.
-        ld iyl, 6
-        call qrc1_nibbles_up
+    ; Print command sequence.
+    ld iy, qrc1_print_cmds
 
-        ; Update the cursor.
-        call qrc_pixel_down
-        call qrc_pixel_left
-        call qrc_pixel_left
+qrc1_print_loop:
+        ; Run the command in the upper nibble.
+        ld a, (iy)
+        rra
+        rra
+        rra
+        rra
+        call qrc1_run_command
 
-        ; Six nibbles down.
-        ld iyl, 6
-        call qrc1_nibbles_down
+        ; Run the command in the lower nibble.
+        ld a, (iy)
+        inc iy
+        call qrc1_run_command
 
-        ; Update the cursor.
-        call qrc_pixel_up
-        call qrc_pixel_left
-        call qrc_pixel_left
+    ; The qrc1_cmd_print_ended command discards the top address in the stack
+    ; and returns, meaning that it will end this loop and return to the caller
+    ; of qrc1_print.
+    jr qrc1_print_loop
 
-    dec iyh
-    jr nz, qrc1_zigzag1
+qrc1_run_command:
+    ; Runs the command in the lower nibble of A. This seems to be more lengthy
+    ; than using a lookup table (LUT), but the code to use the LUT plus the LUT
+    ; itself are bigger than the code here.
+    and $0f
+    jr z, qrc1_pixel_up_1
+    dec a
+    jr z, qrc1_pixel_down_1
+    dec a
+    jr z, qrc1_pixel_left_2
+    dec a
+    jr z, qrc1_pixel_left_1
+    dec a
+    jr z, qrc1_uturn_up
+    dec a
+    jr z, qrc1_uturn_down
+    dec a
+    jr z, qrc1_pixel_up_9
+    dec a
+    jr z, qrc1_nibble_up_7
+    dec a
+    jr z, qrc1_nibble_up_6
+    dec a
+    jr z, qrc1_nibble_up_3
+    dec a
+    jr z, qrc1_nibble_up_2
+    dec a
+    jr z, qrc1_nibble_down_7
+    dec a
+    jr z, qrc1_nibble_down_6
+    dec a
+    jr z, qrc1_nibble_down_3
+    dec a
+    jr z, qrc1_nibble_down_2
 
-    ; Seven nibbles up.
-    ld iyl, 7
-    call qrc1_nibbles_up
+    ; This handles the qrc1_cmd_print_ended command.
+    pop af
+    ret
 
-    ; Jump the timing marks.
-    call qrc_pixel_up
+qrc1_pixel_left_2:
+    call qrc_pixel_left
+qrc1_pixel_left_1:
+    jp qrc_pixel_left
 
-    ; More three nibbles up.
-    ld iyl, 3
-    call qrc1_nibbles_up
-
-    ; Update the cursor.
-    call qrc_pixel_down
+qrc1_uturn_up:
     call qrc_pixel_left
     call qrc_pixel_left
+qrc1_pixel_up_1:
+    jp qrc_pixel_up
 
-    ; Three nibbles down.
-    ld iyl, 3
-    call qrc1_nibbles_down
-
-    ; Jump the timing marks.
-    call qrc_pixel_down
-
-    ; Seven nibbles down.
-    ld iyl, 7
-    call qrc1_nibbles_down
-
-    ; Update the cursor, two pixels to the left, nine pixels up.
+qrc1_uturn_down:
     call qrc_pixel_left
     call qrc_pixel_left
+qrc1_pixel_down_1:
+    jp qrc_pixel_down
 
+qrc1_pixel_up_9:
+    push iy
     ld iyl, 9
-qrc1_loop_up8:
+qrc1_pixel_up_9_loop:
         call qrc_pixel_up
     dec iyl
-    jr nz, qrc1_loop_up8
-
-    ld iyh, 2
-qrc1_zigzag2:
-        ; Two nibbles up.
-        ld iyl, 2
-        call qrc1_nibbles_up
-
-        ; Update the cursor.
-        call qrc_pixel_left
-        call qrc_pixel_left
-
-        ld a, iyh
-        cp 2
-        call z, qrc_pixel_left ; jump the timing marks only the first iteration.
-
-        call qrc_pixel_down
-
-        ; Two nibbles down.
-        ld iyl, 2
-        call qrc1_nibbles_down
-
-        ; Update the cursor.
-        call qrc_pixel_left
-        call qrc_pixel_left
-        call qrc_pixel_up
-
-    dec iyh
-    jr nz, qrc1_zigzag2
-
-    ; Done.
+    jr nz, qrc1_pixel_up_9_loop
+    pop iy
     ret
 
-qrc1_nibbles_up:
-        call qrc1_set_pixel_if
-        call qrc_pixel_left
-        call qrc1_set_pixel_if
-        call qrc_pixel_up
-        call qrc_pixel_right
-        call qrc1_set_pixel_if
-        call qrc_pixel_left
-        call qrc1_set_pixel_if
-        call qrc_pixel_up
-        call qrc_pixel_right
-    dec iyl
-    jr nz, qrc1_nibbles_up
-    ret
+qrc1_nibble_up_7:
+    call qrc1_nibble_up_1
+qrc1_nibble_up_6:
+    call qrc1_nibble_up_1
+    call qrc1_nibble_up_1
+    call qrc1_nibble_up_1
+qrc1_nibble_up_3:
+    call qrc1_nibble_up_1
+qrc1_nibble_up_2:
+    call qrc1_nibble_up_1
+qrc1_nibble_up_1:
+    call qrc1_set_pixel_if
+    call qrc_pixel_left
+    call qrc1_set_pixel_if
+    call qrc_pixel_up
+    call qrc_pixel_right
+    call qrc1_set_pixel_if
+    call qrc_pixel_left
+    call qrc1_set_pixel_if
+    call qrc_pixel_up
+    jp qrc_pixel_right
 
-qrc1_nibbles_down:
-        call qrc1_set_pixel_if
-        call qrc_pixel_left
-        call qrc1_set_pixel_if
-        call qrc_pixel_down
-        call qrc_pixel_right
-        call qrc1_set_pixel_if
-        call qrc_pixel_left
-        call qrc1_set_pixel_if
-        call qrc_pixel_down
-        call qrc_pixel_right
-    dec iyl
-    jr nz, qrc1_nibbles_down
-    ret
+qrc1_nibble_down_7:
+    call qrc1_nibble_down_1
+qrc1_nibble_down_6:
+    call qrc1_nibble_down_1
+    call qrc1_nibble_down_1
+    call qrc1_nibble_down_1
+qrc1_nibble_down_3:
+    call qrc1_nibble_down_1
+qrc1_nibble_down_2:
+    call qrc1_nibble_down_1
+qrc1_nibble_down_1:
+    call qrc1_set_pixel_if
+    call qrc_pixel_left
+    call qrc1_set_pixel_if
+    call qrc_pixel_down
+    call qrc_pixel_right
+    call qrc1_set_pixel_if
+    call qrc_pixel_left
+    call qrc1_set_pixel_if
+    call qrc_pixel_down
+    jp qrc_pixel_right
 
 qrc1_set_pixel_if:
     ld a, (de)
     and b
     call nz, qrc_set_pixel
 
-    srl b
-    ret nz
+    rrc b
+    ret nc
 
     inc de
-    ld b, $80
     ret
+
+; Print commands constants to encode the print commands sequence below.
+qrc1_cmd_pixel_up_1    equ 0
+qrc1_cmd_pixel_down_1  equ 1
+qrc1_cmd_pixel_left_2  equ 2
+qrc1_cmd_pixel_left_1  equ 3
+qrc1_cmd_uturn_up      equ 4
+qrc1_cmd_uturn_down    equ 5
+qrc1_cmd_pixel_up_9    equ 6
+qrc1_cmd_nibble_up_7   equ 7
+qrc1_cmd_nibble_up_6   equ 8
+qrc1_cmd_nibble_up_3   equ 9
+qrc1_cmd_nibble_up_2   equ 10
+qrc1_cmd_nibble_down_7 equ 11
+qrc1_cmd_nibble_down_6 equ 12
+qrc1_cmd_nibble_down_3 equ 13
+qrc1_cmd_nibble_down_2 equ 14
+qrc1_cmd_print_ended   equ 15
+
+; Print commands sequence that drives the printing of the QR Code.
+qrc1_print_cmds:
+    db qrc1_cmd_nibble_up_6   << 4 | qrc1_cmd_uturn_down
+    db qrc1_cmd_nibble_down_6 << 4 | qrc1_cmd_uturn_up
+    db qrc1_cmd_nibble_up_6   << 4 | qrc1_cmd_uturn_down
+    db qrc1_cmd_nibble_down_6 << 4 | qrc1_cmd_uturn_up
+    db qrc1_cmd_nibble_up_7   << 4 | qrc1_cmd_pixel_up_1
+    db qrc1_cmd_nibble_up_3   << 4 | qrc1_cmd_uturn_down
+    db qrc1_cmd_nibble_down_3 << 4 | qrc1_cmd_pixel_down_1
+    db qrc1_cmd_nibble_down_7 << 4 | qrc1_cmd_pixel_left_2
+    db qrc1_cmd_pixel_up_9    << 4 | qrc1_cmd_nibble_up_2
+    db qrc1_cmd_uturn_down    << 4 | qrc1_cmd_pixel_left_1
+    db qrc1_cmd_nibble_down_2 << 4 | qrc1_cmd_uturn_up
+    db qrc1_cmd_nibble_up_2   << 4 | qrc1_cmd_uturn_down
+    db qrc1_cmd_nibble_down_2 << 4 | qrc1_cmd_print_ended
 
 ; The ECC level M polynomial.
 qrc1_ecc_poly:
@@ -388,8 +430,8 @@ qrc1_ecc_poly:
 
 ; The checkerboard mask.
 qrc1_encmessage_mask_0:
-    db $09, $99, $99, $66, $66, $66, $99, $99, $99, $66, $66, $66, $99, $99, $99, $96
-    db $66, $99, $96, $66, $66, $66, $99, $99, $66, $99
+    db $09, $99, $99, $66, $66, $66, $99, $99, $99, $66, $66, $66, $99
+    db $99, $99, $96, $66, $99, $96, $66, $66, $66, $99, $99, $66, $99
 
 ; The message, it'll be encoded in place.
 qrc1_message:
