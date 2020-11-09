@@ -148,7 +148,7 @@ qrc1_test_y:
     dec iyl
     jr nz, qrc1_loop_i
 
-    ; Restore the original encoded message, since the loops above zero it.
+    ; Restore the original encoded message, since the loops above zeroed it.
     ld hl, qrc1_scratch
     ld de, qrc1_message
     ld bc, 16
