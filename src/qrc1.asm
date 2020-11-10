@@ -30,9 +30,6 @@ qrc1_shift_msg:
     rrd
     inc hl
 
-    ; HL points to the last byte of the message; save it for later.
-    push hl
-
     ; Pad the rest of the message with $ec and $11.
     ld a, 14
     sub c
@@ -158,29 +155,9 @@ qrc1_test_y:
     ; Apply mask.
     ; ------------------------------------------------------------------------
 
-    ; Copy the checkerboard mask to the scratch buffer.
-    ld hl, qrc1_encmessage_mask_0
-    ld de, qrc1_scratch
-    ld bc, 26
-    ldir
-
-    ; Restore the pointer to the last message byte.
-    pop hl
-
-    ; Add the offset from the scratch buffer that contains the mask to the
-    ; message to point to the corresponding byte in the mask, HL will point to
-    ; the byte in the mask that corresponds to the last byte of the message.
-    ld de, qrc1_scratch - qrc1_message - 1
-    add hl, de
-
-    ; Clear the bits in the mask that correspond to the end of message mark.
-    ld a, (hl)
-    and $f0
-    ld (hl), a
-
     ; Xor the mask into the encoded message.
     ld hl, qrc1_message
-    ld de, qrc1_scratch
+    ld de, qrc1_encmessage_mask_0
     ld b, 26
 qrc1_xor_mask:
         ld a, (de)
@@ -479,7 +456,7 @@ qrc1_message:
 
 ; Some scratch bytes.
 qrc1_scratch:
-    ds 26
+    ds 16
 
 ; The fixed modules encoded in binary.
 qrc1_fixed_modules:
