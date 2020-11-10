@@ -287,43 +287,56 @@ qrc1_run_command:
     dec a
     jr z, qrc1_pixel_up_9
     dec a
-    jr z, qrc1_nibble_up_7
+    jr z, qrc1_bit_up_28
     dec a
-    jr z, qrc1_nibble_up_6
+    jr z, qrc1_bit_up_24
     dec a
-    jr z, qrc1_nibble_up_3
+    jr z, qrc1_bit_up_12
     dec a
-    jr z, qrc1_nibble_up_2
+    jr z, qrc1_bit_up_8
     dec a
-    jr z, qrc1_nibble_down_7
+    jr z, qrc1_bit_down_28
     dec a
-    jr z, qrc1_nibble_down_6
+    jr z, qrc1_bit_down_24
     dec a
-    jr z, qrc1_nibble_down_3
+    jr z, qrc1_bit_down_12
     dec a
-    jr z, qrc1_nibble_down_2
+    jr z, qrc1_bit_down_8
 
     ; This handles the qrc1_cmd_print_ended command.
     pop af
     ret
 
+; Skips two pixels to the left.
 qrc1_pixel_left_2:
     call qrc_pixel_left
+    ; fallthrough
+
+; Skips one pixel to the left.
 qrc1_pixel_left_1:
     jp qrc_pixel_left
 
+; Makes a U-turn to start going up.
 qrc1_uturn_up:
     call qrc_pixel_left
     call qrc_pixel_left
+    ; fallthrough
+
+; Skips one pixel up.
 qrc1_pixel_up_1:
     jp qrc_pixel_up
 
+; Makes a U-turn to start going down.
 qrc1_uturn_down:
     call qrc_pixel_left
     call qrc_pixel_left
+    ; fallthrough
+
+; Skips one pixel down.
 qrc1_pixel_down_1:
     jp qrc_pixel_down
 
+; Skips nine pixels up.
 qrc1_pixel_up_9:
     push iy
     ld iyl, 9
@@ -334,15 +347,28 @@ qrc1_pixel_up_9_loop:
     pop iy
     ret
 
-qrc1_nibble_up_7:
-    call qrc1_nibble_up_1
-qrc1_nibble_up_6:
-    call qrc1_nibble_up_3
-qrc1_nibble_up_3:
-    call qrc1_nibble_up_1
-qrc1_nibble_up_2:
-    call qrc1_nibble_up_1
-qrc1_nibble_up_1:
+; Plots 28 modules up in zig-zag.
+qrc1_bit_up_28:
+    call qrc1_bit_up_4
+    ; fallthrough
+
+; Plots 24 modules up in zig-zag.
+qrc1_bit_up_24:
+    call qrc1_bit_up_12
+    ; fallthrough
+
+; Plots 12 moudles up in zig-zag.
+qrc1_bit_up_12:
+    call qrc1_bit_up_4
+    ; fallthrough
+
+; Plots 8 modules up in zig-zag.
+qrc1_bit_up_8:
+    call qrc1_bit_up_4
+    ; fallthrough
+
+; Plots 4 modules up in zig-zag.
+qrc1_bit_up_4:
     call qrc1_set_pixel_if
     call qrc_pixel_left
     call qrc1_set_pixel_if
@@ -354,15 +380,28 @@ qrc1_nibble_up_1:
     call qrc_pixel_up
     jp qrc_pixel_right
 
-qrc1_nibble_down_7:
-    call qrc1_nibble_down_1
-qrc1_nibble_down_6:
-    call qrc1_nibble_down_3
-qrc1_nibble_down_3:
-    call qrc1_nibble_down_1
-qrc1_nibble_down_2:
-    call qrc1_nibble_down_1
-qrc1_nibble_down_1:
+; Plots 28 modules down in zig-zag.
+qrc1_bit_down_28:
+    call qrc1_bit_down_4
+    ; fallthrough
+
+; Plots 24 modules down in zig-zag.
+qrc1_bit_down_24:
+    call qrc1_bit_down_12
+    ; fallthrough
+
+; Plots 12 modules down in zig-zag.
+qrc1_bit_down_12:
+    call qrc1_bit_down_4
+    ; fallthrough
+
+; Plots 8 modules down in zig-zag.
+qrc1_bit_down_8:
+    call qrc1_bit_down_4
+    ; fallthrough
+
+; Plots 4 modules down in zig-zag.
+qrc1_bit_down_4:
     call qrc1_set_pixel_if
     call qrc_pixel_left
     call qrc1_set_pixel_if
@@ -374,50 +413,53 @@ qrc1_nibble_down_1:
     call qrc_pixel_down
     jp qrc_pixel_right
 
+; Plots a module if the corresponding bit in the encoded message is set.
 qrc1_set_pixel_if:
     ld a, (de)
     and b
     call nz, qrc_set_pixel
 
+    ; Skip to the next bit.
     rrc b
     ret nc
 
+    ; Increment the pointer to the encoded message if the bit in B wrapped.
     inc de
     ret
 
 ; Print commands constants to encode the print commands sequence below.
-qrc1_cmd_pixel_up_1    equ 0
-qrc1_cmd_pixel_down_1  equ 1
-qrc1_cmd_pixel_left_2  equ 2
-qrc1_cmd_pixel_left_1  equ 3
-qrc1_cmd_uturn_up      equ 4
-qrc1_cmd_uturn_down    equ 5
-qrc1_cmd_pixel_up_9    equ 6
-qrc1_cmd_nibble_up_7   equ 7
-qrc1_cmd_nibble_up_6   equ 8
-qrc1_cmd_nibble_up_3   equ 9
-qrc1_cmd_nibble_up_2   equ 10
-qrc1_cmd_nibble_down_7 equ 11
-qrc1_cmd_nibble_down_6 equ 12
-qrc1_cmd_nibble_down_3 equ 13
-qrc1_cmd_nibble_down_2 equ 14
-qrc1_cmd_print_ended   equ 15
+qrc1_cmd_pixel_up_1   equ 0
+qrc1_cmd_pixel_down_1 equ 1
+qrc1_cmd_pixel_left_2 equ 2
+qrc1_cmd_pixel_left_1 equ 3
+qrc1_cmd_uturn_up     equ 4
+qrc1_cmd_uturn_down   equ 5
+qrc1_cmd_pixel_up_9   equ 6
+qrc1_cmd_bit_up_28    equ 7
+qrc1_cmd_bit_up_24    equ 8
+qrc1_cmd_bit_up_12    equ 9
+qrc1_cmd_bit_up_8     equ 10
+qrc1_cmd_bit_down_28  equ 11
+qrc1_cmd_bit_down_24  equ 12
+qrc1_cmd_bit_down_12  equ 13
+qrc1_cmd_bit_down_8   equ 14
+qrc1_cmd_print_ended  equ 15
 
 ; Print commands sequence that drives the printing of the QR Code.
 qrc1_print_cmds:
-    db qrc1_cmd_nibble_up_6   << 4 | qrc1_cmd_uturn_down
-    db qrc1_cmd_nibble_down_6 << 4 | qrc1_cmd_uturn_up
-    db qrc1_cmd_nibble_up_6   << 4 | qrc1_cmd_uturn_down
-    db qrc1_cmd_nibble_down_6 << 4 | qrc1_cmd_uturn_up
-    db qrc1_cmd_nibble_up_7   << 4 | qrc1_cmd_pixel_up_1
-    db qrc1_cmd_nibble_up_3   << 4 | qrc1_cmd_uturn_down
-    db qrc1_cmd_nibble_down_3 << 4 | qrc1_cmd_pixel_down_1
-    db qrc1_cmd_nibble_down_7 << 4 | qrc1_cmd_pixel_left_2
-    db qrc1_cmd_pixel_up_9    << 4 | qrc1_cmd_nibble_up_2
-    db qrc1_cmd_uturn_down    << 4 | qrc1_cmd_pixel_left_1
-    db qrc1_cmd_nibble_down_2 << 4 | qrc1_cmd_uturn_up
-    db qrc1_cmd_nibble_up_2   << 4 | qrc1_cmd_uturn_down
-    db qrc1_cmd_nibble_down_2 << 4 | qrc1_cmd_print_ended
+    db qrc1_cmd_bit_up_24   << 4 | qrc1_cmd_uturn_down
+    db qrc1_cmd_bit_down_24 << 4 | qrc1_cmd_uturn_up
+    db qrc1_cmd_bit_up_24   << 4 | qrc1_cmd_uturn_down
+    db qrc1_cmd_bit_down_24 << 4 | qrc1_cmd_uturn_up
+    db qrc1_cmd_bit_up_28   << 4 | qrc1_cmd_pixel_up_1
+    db qrc1_cmd_bit_up_12   << 4 | qrc1_cmd_uturn_down
+    db qrc1_cmd_bit_down_12 << 4 | qrc1_cmd_pixel_down_1
+    db qrc1_cmd_bit_down_28 << 4 | qrc1_cmd_pixel_left_2
+    db qrc1_cmd_pixel_up_9  << 4 | qrc1_cmd_bit_up_8
+    db qrc1_cmd_uturn_down  << 4 | qrc1_cmd_pixel_left_1
+    db qrc1_cmd_bit_down_8  << 4 | qrc1_cmd_uturn_up
+    db qrc1_cmd_bit_up_8    << 4 | qrc1_cmd_uturn_down
+    db qrc1_cmd_bit_down_8  << 4 | qrc1_cmd_print_ended
 
 ; The ECC level M polynomial.
 qrc1_ecc_poly:
