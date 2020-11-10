@@ -1,8 +1,14 @@
 local pasmo = arg[1] or '../../../pasmo-0.5.3/pasmo'
 local zxtext2p = arg[2] or '../../etc/zxtext2p'
 
+local function execute(format, ...)
+    local cmd = string.format(format, ...)
+    print(cmd)
+    assert(os.execute(cmd))
+end
+
 -- Assemble
-assert(os.execute(string.format('%s --bin zx81.asm zx81asm.bin zx81.lst', pasmo)))
+execute(string.format('%s --bin zx81.asm zx81asm.bin zx81.lst', pasmo))
 
 -- Get information from the assembled file
 local f = assert(io.open('zx81.lst', 'rb'))
@@ -41,7 +47,7 @@ local f = assert(io.open('temp.bas', 'w'))
 f:write(bas)
 f:close()
 
-assert(os.execute(string.format('%s -o zx81bas.bin temp.bas', zxtext2p)))
+execute(string.format('%s -o zx81bas.bin temp.bas', zxtext2p))
 
 -- Read and combine the generated files
 local f = assert(io.open('zx81asm.bin', 'rb'))
