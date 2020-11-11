@@ -26,7 +26,7 @@ qrc1_shift_msg:
 
     ; A has the low nibble of the last message byte, shift it to the high
     ; nibble and set the low nibble to 0, which is the end of message mark.
-    ld (hl), 0
+    ld (hl), b ; B is zero here
     rrd
     inc hl
 
