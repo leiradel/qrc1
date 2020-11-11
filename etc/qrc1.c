@@ -4,11 +4,6 @@
 #include <stddef.h>
 #include <string.h>
 
-// https://pagedout.institute/download/PagedOut_002_beta2.pdf (page 20)
-// https://www.thonky.com/qr-code-tutorial/
-// https://en.wikipedia.org/wiki/QR_code
-// https://www.quaxio.com/an_artisanal_qr_code.html
-
 // An encoded message and it's checkerboard mask.
 typedef struct {
     uint8_t bytes[16];

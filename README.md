@@ -59,6 +59,14 @@ There's a C version at `etc/qrc1.c`, which I wrote only to validate that I could
 
 There's also a modified version of **zxtext2p** that will auto-run the generated program starting at the first line.
 
+## Links
+
+* [ISO/IEC18004](https://www.swisseduc.ch/informatik/theoretische_informatik/qr_codes/docs/qr_standard.pdf)
+* [Paged Out! magazine issue #2](https://pagedout.institute/download/PagedOut_002_beta2.pdf) (page 20)
+* [Website for the article published on PagedOut!](https://www.quaxio.com/an_artisanal_qr_code.html)
+* [Thonky QR Code Tutorial](https://www.thonky.com/qr-code-tutorial/)
+* [Wikipedia QR Code article](https://en.wikipedia.org/wiki/QR_code)
+
 ## License
 
 MIT, enjoy.
