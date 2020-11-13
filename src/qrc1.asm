@@ -463,5 +463,5 @@ qrc1_fixed_modules:
     db $ba, $aa, $a8 
     db $ba, $55, $50 
     db $ba, $aa, $a8 
-    db $82, $55, $40 
-    db $fe, $aa, $a0
+    db $82, $55, $50 
+    db $fe, $aa, $a8
