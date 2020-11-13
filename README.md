@@ -15,11 +15,12 @@ The generator is in the `src/qrc1.asm` file. It doesn't output anything by itsel
     * `qrc_pixel_down`: move the current pixel cursor down
     * `qrc_pixel_left`: move the current pixel cursor to the left
     * `qrc_pixel_right`: move the current pixel cursor to the right
-    * `qrc_set_pixel`: set (make black) the current pixel
+    * `qrc_invert_pixel`: invert the current pixel
         * These routines are free to use `A`, `C`, `H`, `L`, and `IX`. `A` is changed by the caller so it should be used only for temporary values, but `C`, `H`, `L`, and `IX` are **not** changed and can be used for persistent values. Do not change any other registers.
 1. Set the byte at `qrc1_message` to the message length (maximum 14 bytes)
 1. Write the message bytes after the length
 1. Call `qrc1_encmessage` to encode the message
+1. Make sure the screen area that will receive the pixels for the QR Code is filled with white pixels (platform dependent)
 1. Set `C`, `H`, `L`, and `IX` to represent the top-left pixel of the QR Code in the screen (platform dependent)
 1. Call `qrc1_print`
 

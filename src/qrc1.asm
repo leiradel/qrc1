@@ -151,21 +151,9 @@ qrc1_test_y:
     ld bc, 16
     ldir
 
-    ; ------------------------------------------------------------------------
-    ; Apply mask.
-    ; ------------------------------------------------------------------------
-
-    ; Xor the mask into the encoded message.
-    ld hl, qrc1_message
-    ld de, qrc1_encmessage_mask_0
-    ld b, 26
-qrc1_xor_mask:
-        ld a, (de)
-        xor (hl)
-        ld (hl), a
-        inc hl
-        inc de
-    djnz qrc1_xor_mask
+    ; All done, there's no need to perform the masking step because the mask is
+    ; embedded in the fixed modules binary pattern so it's automatically
+    ; applied when the modules are plotted.
     ret
 
 qrc1_print:
@@ -190,7 +178,7 @@ qrc1_print_bits:
                 rla
 
                 push af
-                call c, qrc_set_pixel
+                call c, qrc_invert_pixel
                 call qrc_pixel_right
                 pop af
             djnz qrc1_print_bits
@@ -394,7 +382,7 @@ qrc1_bit_down_4:
 qrc1_set_pixel_if:
     ld a, (de)
     and b
-    call nz, qrc_set_pixel
+    call nz, qrc_invert_pixel
 
     ; Skip to the next bit.
     rrc b
@@ -443,11 +431,6 @@ qrc1_ecc_poly:
     db 1, 216, 194, 159, 111, 199, 94, 95, 113, 157, 193
     db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-; The checkerboard mask.
-qrc1_encmessage_mask_0:
-    db $09, $99, $99, $66, $66, $66, $99, $99, $99, $66, $66, $66, $99
-    db $99, $99, $96, $66, $99, $96, $66, $66, $66, $99, $99, $66, $99
-
 ; The message, it'll be encoded in place.
 qrc1_message:
     db 0  ; Message length
@@ -458,26 +441,27 @@ qrc1_message:
 qrc1_scratch:
     ds 16
 
-; The fixed modules encoded in binary.
+; The fixed modules encoded in binary. The checkerboard mask is already
+; included, so there's no separate masking operation.
 qrc1_fixed_modules:
-    db $fe, $03, $f8
-    db $82, $82, $08
-    db $ba, $02, $e8
-    db $ba, $02, $e8
-    db $ba, $82, $e8
-    db $82, $02, $08
-    db $fe, $ab, $f8
-    db $00, $00, $00
-    db $aa, $00, $90
-    db $00, $00, $00
-    db $02, $00, $00
-    db $00, $00, $00
-    db $02, $00, $00
-    db $00, $80, $00
-    db $fe, $00, $00
-    db $82, $00, $00
-    db $ba, $80, $00
-    db $ba, $00, $00
-    db $ba, $80, $00
-    db $82, $00, $00
-    db $fe, $80, $00
+    db $fe, $2b, $f8 
+    db $82, $d2, $08 
+    db $ba, $2a, $e8 
+    db $ba, $52, $e8 
+    db $ba, $aa, $e8 
+    db $82, $52, $08 
+    db $fe, $ab, $f8 
+    db $00, $50, $00 
+    db $aa, $28, $90 
+    db $55, $55, $50 
+    db $aa, $aa, $a8 
+    db $55, $55, $50 
+    db $aa, $aa, $a8 
+    db $00, $d5, $50 
+    db $fe, $2a, $a8 
+    db $82, $55, $50 
+    db $ba, $aa, $a8 
+    db $ba, $55, $50 
+    db $ba, $aa, $a8 
+    db $82, $55, $40 
+    db $fe, $aa, $a0

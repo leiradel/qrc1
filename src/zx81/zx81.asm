@@ -143,13 +143,13 @@ qrc_dont_add:
     sla c
     ret
 
-qrc_set_pixel:
+qrc_invert_pixel:
     ld a, (hl)
     bit 7, a
     jr z, qrc_invert1
         xor $8f
 qrc_invert1:
-    or c
+    xor c
     bit 3, a
     jr z, qrc_invert2
         xor $8f

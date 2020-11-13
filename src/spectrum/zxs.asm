@@ -1,25 +1,25 @@
 ; https://github.com/leiradel/qrc1
 
-;qrc_pixel_up    equ qrc_pixel_up_1
-;qrc_pixel_down  equ qrc_pixel_down_1
-;qrc_pixel_left  equ qrc_pixel_left_1
-;qrc_pixel_right equ qrc_pixel_right_1
-;qrc_set_pixel   equ qrc_set_pixel_1
-;start_pixel     equ $80
+;qrc_pixel_up     equ qrc_pixel_up_1
+;qrc_pixel_down   equ qrc_pixel_down_1
+;qrc_pixel_left   equ qrc_pixel_left_1
+;qrc_pixel_right  equ qrc_pixel_right_1
+;qrc_invert_pixel equ qrc_invert_pixel_1
+;start_pixel      equ $80
 
-;qrc_pixel_up    equ qrc_pixel_up_2
-;qrc_pixel_down  equ qrc_pixel_down_2
-;qrc_pixel_left  equ qrc_pixel_left_2
-;qrc_pixel_right equ qrc_pixel_right_2
-;qrc_set_pixel   equ qrc_set_pixel_2
-;start_pixel     equ $c0
+;qrc_pixel_up     equ qrc_pixel_up_2
+;qrc_pixel_down   equ qrc_pixel_down_2
+;qrc_pixel_left   equ qrc_pixel_left_2
+;qrc_pixel_right  equ qrc_pixel_right_2
+;qrc_invert_pixel equ qrc_invert_pixel_2
+;start_pixel      equ $c0
 
-qrc_pixel_up    equ qrc_pixel_up_4
-qrc_pixel_down  equ qrc_pixel_down_4
-qrc_pixel_left  equ qrc_pixel_left_4
-qrc_pixel_right equ qrc_pixel_right_4
-qrc_set_pixel   equ qrc_set_pixel_4
-start_pixel     equ $f0
+qrc_pixel_up     equ qrc_pixel_up_4
+qrc_pixel_down   equ qrc_pixel_down_4
+qrc_pixel_left   equ qrc_pixel_left_4
+qrc_pixel_right  equ qrc_pixel_right_4
+qrc_invert_pixel equ qrc_invert_pixel_4
+start_pixel      equ $f0
 
     org 24576
 
@@ -65,7 +65,7 @@ qrc_pixel_right_1:
     ld l, a
     ret
 
-qrc_set_pixel_1:
+qrc_invert_pixel_1:
     push hl
     push hl
 
@@ -90,7 +90,7 @@ qrc_set_pixel_1:
     ld h, a
 
     ld a, (hl)
-    or c
+    xor c
     ld (hl), a
     pop hl
     ret
@@ -142,10 +142,10 @@ qrc_pixel_right_2:
     ld l, a
     ret
 
-qrc_set_pixel_2:
-    call qrc_set_pixel_1
+qrc_invert_pixel_2:
+    call qrc_invert_pixel_1
     inc h
-    call qrc_set_pixel_1
+    call qrc_invert_pixel_1
     dec h
     ret
 
@@ -191,14 +191,14 @@ qrc_pixel_right_4:
     ld l, a
     ret
 
-qrc_set_pixel_4:
-    call qrc_set_pixel_1
+qrc_invert_pixel_4:
+    call qrc_invert_pixel_1
     inc h
-    call qrc_set_pixel_1
+    call qrc_invert_pixel_1
     inc h
-    call qrc_set_pixel_1
+    call qrc_invert_pixel_1
     inc h
-    call qrc_set_pixel_1
+    call qrc_invert_pixel_1
     dec h
     dec h
     dec h
