@@ -84,11 +84,13 @@ static uint64_t tick(int const num_ticks, uint64_t pins, void* const userdata) {
                 state->bytes[state->byte_count-- - 1] = data;
 
                 if (state->byte_count == 0) {
+                    uint16_t word = 0;
+
                     for (int i = 0; i < 2; i++) {
-                        printf("%02x", state->bytes[i]);
+                        word = word << 8 | state->bytes[i];
                     }
 
-                    printf("\n");
+                    printf("0x%04x (%u)\n", word, word);
                 }
             }
             else {
