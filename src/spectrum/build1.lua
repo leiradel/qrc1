@@ -8,10 +8,10 @@ local function execute(format, ...)
 end
 
 -- Assemble
-execute(string.format('%s --tap zxs.asm zxsasm.tap zxs.lst', pasmo))
+execute(string.format('%s --tap zxs1.asm zxsasm.tap zxs1.lst', pasmo))
 
 -- Get information from the assembled file
-local f = assert(io.open('zxs.lst', 'rb'))
+local f = assert(io.open('zxs1.lst', 'rb'))
 local main, message
 
 for line in f:lines() do
@@ -27,7 +27,7 @@ end
 f:close()
 
 -- Create the BASIC list
-local f = assert(io.open('zxs.bas', 'r'))
+local f = assert(io.open('zxs1.bas', 'r'))
 local bas = f:read('*a')
 f:close()
 
@@ -54,12 +54,12 @@ local asm = f:read('*a')
 f:close()
 
 local tap = bas .. asm
-local f = assert(io.open('zxs.tap', 'wb'))
+local f = assert(io.open('zxs1.tap', 'wb'))
 f:write(tap)
 f:close()
 
 -- Clean up
 os.remove('zxsasm.tap')
 os.remove('zxsbas.tap')
-os.remove('zxs.lst')
+os.remove('zxs1.lst')
 os.remove('temp.bas')
