@@ -291,7 +291,7 @@ qrc1_uturn_up:
 qrc1_pixel_up_1:
     jp qrc_pixel_up
 
-; Makes a U-turn to start going down.
+; Makes an U-turn to start going down.
 qrc1_uturn_down:
     call qrc_pixel_left
     call qrc_pixel_left
