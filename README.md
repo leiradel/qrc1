@@ -29,7 +29,7 @@ The assembly files should assemble with virtually any Z80 assembler since it doe
 ### Version 11
 
 1. Implement the same routines for your platform as the version 1
-1. Set the byte at `qrc11_message + 1` to the message length (maximum 14 bytes, **notice the `+1`**)
+1. Set the byte at `qrc11_message` to the message length (maximum 251 bytes)
 1. Write the message bytes after the length
 1. Call `qrc11_encmessage` to encode the message
 1. Make sure the screen area that will receive the pixels for the QR Code is filled with white pixels (platform dependent)

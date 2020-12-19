@@ -1,14 +1,14 @@
 ; https://github.com/leiradel/qrc1
 
-; qrc11_message contains a $40 byte followed by the message length followed
-; by the message (maximum 251 bytes).
+; qrc11_message contains the message length followed by the message (maximum
+; 251 bytes).
 qrc11_encmessage:
     ; ------------------------------------------------------------------------
     ; Encode the message.
     ; ------------------------------------------------------------------------
 
     ; Insert a 0000 nibble to before the length
-    ld hl, qrc11_message + 1
+    ld hl, qrc11_message
     ld c, (hl)
     xor a
 
@@ -86,7 +86,7 @@ qrc11_no_padding:
 
 qrc11_interleave:
     ld hl, qrc11_b1
-    ld de, qrc11_message
+    ld de, qrc11_message - 1
 
     ld a, 50
 qrc11_dintl:
@@ -363,7 +363,7 @@ qrc11_print_modules:
     call qrc_pixel_left
 
     ; Message bits.
-    ld de, qrc11_message
+    ld de, qrc11_message - 1
     ld b, $80 ; Most significant bit
 
     ; Set the current plot direction to up.
@@ -593,9 +593,9 @@ qrc11_ecc_poly_extra:
     ds 51
 
 ; The message, it'll be encoded in place.
-qrc11_message:
 qrc11_block1:
     db $40
+qrc11_message:
     db 0   ; Message length
     ds 48  ; Message source
 qrc11_block2:

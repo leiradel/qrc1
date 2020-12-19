@@ -32,7 +32,7 @@ local bas = f:read('*a')
 f:close()
 
 bas = bas:gsub('%${(.-)}', {
-    MESSAGE = message + 1,
+    MESSAGE = message,
     MAIN = main,
     RAMTOP = main - 1
 })
