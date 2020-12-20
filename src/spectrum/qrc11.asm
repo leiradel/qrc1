@@ -33,7 +33,7 @@ main:
     ; and L is X & %11111000. The low bits of X are encoded in register C.
     ld hl, 40 << 8 | 8 << 3
 
-    ; Set C to the first pixel in the byte (pixels here are 4x4 real pixels).
+    ; Set C to the first pixel in the byte.
     ld c, start_pixel
 
     ; Print it onto the screen.
