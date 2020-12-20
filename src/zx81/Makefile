@@ -1,12 +1,12 @@
 ZXTEXT2P=../../etc/zxtext2p
 PASMO=../../../pasmo-0.5.3/pasmo
 
-all: zx81.p
+all: qrc1.p
 
-zx81.p: buildp.lua zx81.bas zx81.asm
-	lua buildp.lua "$(PASMO)" "$(ZXTEXT2P)"
+qrc1.p: buildp.lua qrc1.bas qrc1.asm plot.asm ../qrc1.asm
+	LUA_PATH=';;../../etc/?.lua' lua buildp.lua qrc1.bas qrc1.asm $@ "$(PASMO)" "$(ZXTEXT2P)"
 
 clean: FORCE
-	rm -f zx81.p
+	rm -f qrc1.p
 
 .PHONY: FORCE

@@ -1,70 +1,50 @@
-local pasmo = arg[1] or '../../../pasmo-0.5.3/pasmo'
-local zxtext2p = arg[2] or '../../etc/zxtext2p'
+local basic_path = arg[1]
+local assembly_path = arg[2]
+local p_path = arg[3]
+local pasmo = arg[4]
+local zxtext2p = arg[5]
+
+--LUA_PATH = LUA_PATH and (LUA_PATH .. ';../../etc/?.lua') or '../../etc/?.lua'
+
+local lstsym = require 'lstsym'
+local readall = require 'readall'
+local baspp = require 'baspp'
+local writeall = require 'writeall'
 
 local function execute(format, ...)
     local cmd = string.format(format, ...)
-    print(cmd)
     assert(os.execute(cmd))
 end
 
--- Assemble
-execute(string.format('%s --bin zx81.asm zx81asm.bin zx81.lst', pasmo))
+-- Set up temporary paths.
+local tmp_bin_path = 'temp.bin'
+local tmp_lst_path = 'temp.lst'
+local tmp_bas_path = 'temp.bas'
+local tmp_p_path = 'temp.p'
 
--- Get information from the assembled file
-local f = assert(io.open('zx81.lst', 'rb'))
-local main, message
+-- Assemble.
+execute(string.format('%s --bin %s %s %s', pasmo, assembly_path, tmp_bin_path, tmp_lst_path))
 
-for line in f:lines() do
-    local symbol, value = line:match('([^%s]+)%s+EQU%s+([%x]+)H')
+-- Get symbols from the assembled file.
+local symbols = assert(lstsym(tmp_lst_path))
 
-    if symbol == 'main' then
-        main = tonumber(value, 16)
-    elseif symbol == 'qrc1_message' then
-        message = tonumber(value, 16)
-    end
-end
+-- Create the BASIC list.
+local basic = assert(readall(basic_path))
+basic = assert(baspp(basic, symbols))
 
-f:close()
+-- Generate the P file from the BASIC list.
+assert(writeall(tmp_bas_path, basic))
+execute(string.format('%s -o %s %s', zxtext2p, tmp_p_path, tmp_bas_path))
 
--- Get the size of the assembled file
-local f = assert(io.open('zx81asm.bin', 'rb'))
-local size = #f:read('*a')
-f:close()
+-- Read and combine the generated files.
+local bin = assert(readall(tmp_bin_path))
+local p = assert(readall(tmp_p_path))
 
--- Create the BASIC list
-local f = assert(io.open('zx81.bas', 'r'))
-local bas = f:read('*a')
-f:close()
+p = p:sub(1, 0x79) .. bin .. p:sub(0x79 + #bin + 1, -1)
+assert(writeall(p_path, p))
 
-bas = bas:gsub('%${(.-)}', {
-    ASM = string.rep('.', size),
-    MESSAGE = message,
-    MAIN = main
-})
-
--- Generate the P file from the BASIC list
-local f = assert(io.open('temp.bas', 'w'))
-f:write(bas)
-f:close()
-
-execute(string.format('%s -o zx81bas.bin temp.bas', zxtext2p))
-
--- Read and combine the generated files
-local f = assert(io.open('zx81asm.bin', 'rb'))
-local asm = f:read('*a')
-f:close()
-
-local f = assert(io.open('zx81bas.bin', 'rb'))
-local bas = f:read('*a')
-f:close()
-
-local pfile = bas:sub(1, 0x79) .. asm .. bas:sub(0x79 + size + 1, -1)
-local f = assert(io.open('zx81.p', 'wb'))
-f:write(pfile)
-f:close()
-
--- Clean up
-os.remove('zx81asm.bin')
-os.remove('zx81bas.bin')
-os.remove('zx81.lst')
-os.remove('temp.bas')
+-- Clean up.
+os.remove(tmp_bin_path)
+os.remove(tmp_lst_path)
+os.remove(tmp_bas_path)
+os.remove(tmp_p_path)
