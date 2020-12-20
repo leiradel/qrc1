@@ -1,15 +1,15 @@
 ZMAKEBAS=../../../zmakebas/zmakebas
 PASMO=../../../pasmo-0.5.3/pasmo
 
-all: zxs1.tap zxs11.tap
+all: qrc1.tap qrc11.tap
 
-zxs1.tap: build1.lua zxs1.bas zxs1.asm ../qrc1.asm
+qrc1.tap: build1.lua qrc1.bas qrc1.asm plot.asm ../qrc1.asm
 	lua build1.lua "$(PASMO)" "$(ZMAKEBAS)"
 
-zxs11.tap: build11.lua zxs11.bas zxs11.asm ../qrc11.asm
+qrc11.tap: build11.lua qrc11.bas qrc11.asm plot.asm ../qrc11.asm
 	lua build11.lua "$(PASMO)" "$(ZMAKEBAS)"
 
 clean: FORCE
-	rm -f zxs1.tap zxs11.tap
+	rm -f qrc1.tap qrc11.tap
 
 .PHONY: FORCE
