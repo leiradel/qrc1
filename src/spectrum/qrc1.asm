@@ -9,6 +9,8 @@ start_pixel      equ $f0
 
     org 24576
 
+ramtop equ $ - 1
+
 main:
     ; Encode the message.
     call qrc1_encmessage
