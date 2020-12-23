@@ -6,7 +6,7 @@ all: qrc1.p i25.p
 qrc1.p: buildp.lua qrc1.bas qrc1.asm plot.asm ../qrc1_rom.asm ../qrc1_ram.asm
 	LUA_PATH=';;../../etc/?.lua' lua buildp.lua qrc1.bas qrc1.asm $@ "$(PASMO)" "$(ZXTEXT2P)"
 
-i25.p: buildp.lua i25.bas i25.asm plot.asm ../i25.asm
+i25.p: buildp.lua i25.bas i25.asm plot.asm ../i25_rom.asm
 	LUA_PATH=';;../../etc/?.lua' lua buildp.lua i25.bas i25.asm $@ "$(PASMO)" "$(ZXTEXT2P)"
 
 clean: FORCE

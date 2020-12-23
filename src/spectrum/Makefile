@@ -9,7 +9,7 @@ qrc1.tap: buildtap.lua qrc1.bas qrc1.asm plot.asm ../qrc1_rom.asm ../qrc1_ram.as
 qrc11.tap: buildtap.lua qrc11.bas qrc11.asm plot.asm ../qrc11_rom.asm ../qrc11_ram.asm
 	LUA_PATH=';;../../etc/?.lua' lua buildtap.lua qrc11.bas qrc11.asm $@ "$(PASMO)" "$(ZMAKEBAS)"
 
-i25.tap: buildtap.lua i25.bas i25.asm plot.asm ../i25.asm
+i25.tap: buildtap.lua i25.bas i25.asm plot.asm ../i25_rom.asm
 	LUA_PATH=';;../../etc/?.lua' lua buildtap.lua i25.bas i25.asm $@ "$(PASMO)" "$(ZMAKEBAS)"
 
 clean: FORCE
