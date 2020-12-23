@@ -4,7 +4,18 @@ QR Code versions 1 and 11 and Code 2 of 5 generators written in Z80 assembly.
 
 ## Source Code
 
-The generators are in the `src/qrc1.asm`, `src/qrc11.asm`, and `src/i25.asm` files. They don't output anything by themselves, to actually see something some platform specific code must be written that encodes the message and translates it to pixels on the screen.
+The generators are in:
+
+* QR Code version 1
+  * `src/qrc1_rom.asm`
+  * `src/qrc1_ram.asm`
+* QR Code version 11
+  * `src/qrc11_rom.asm`
+  * `src/qrc11_ram.asm`
+* Code 2 of 5
+  * `src/i25_rom.asm`
+
+They don't output anything by themselves, to actually see something some platform specific code must be written that encodes the message and translates it to pixels on the screen.
 
 The assembly files should assemble with virtually any Z80 assembler since it doesn't use anything but quite standard features found everywhere. If you do find issues when assembling please let me know and I'll try to fix them.
 
@@ -14,6 +25,7 @@ The QR Code version 11 encoder was contributed by [Daniel A. Nagy](https://githu
 
 ### QR Code Version 1
 
+1. Include the files `src/qrc1_rom.asm` and `src/qrc1_ram.asm` in your project; the former can be in ROM but the later must be in RAM
 1. Implement the following routines for your platform:
     * `qrc_pixel_up`: move the current pixel cursor up
     * `qrc_pixel_down`: move the current pixel cursor down
@@ -30,6 +42,7 @@ The QR Code version 11 encoder was contributed by [Daniel A. Nagy](https://githu
 
 ### QR Code Version 11
 
+1. Include the files `src/qrc11_rom.asm` and `src/qrc11_ram.asm` in your project; the former can be in ROM but the later must be in RAM
 1. Implement the same routines for your platform as the version 1
 1. Set the byte at `qrc11_message` to the message length (maximum 251 bytes)
 1. Write the message bytes after the length
@@ -40,6 +53,7 @@ The QR Code version 11 encoder was contributed by [Daniel A. Nagy](https://githu
 
 ### Code 2 of 5
 
+1. Include the file `src/i25_rom.asm` in your project; it can be in ROM
 1. Define `i25_message` in RAM with 1 plus the maximum message size that will be needed
 1. Implement the same routines for your platform as the QR Code version 1
 1. Set the byte at `i25_message` to the message length; it must be even and the maximum length is only limited by the screen size though 254 is a hard limit imposed by the byte
