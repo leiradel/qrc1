@@ -116,6 +116,3 @@ i25_patterns:
     db %00011 * 8
     db %10010 * 8
     db %01010 * 8
-
-i25_message:
-    ds 9

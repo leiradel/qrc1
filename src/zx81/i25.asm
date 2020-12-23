@@ -19,5 +19,8 @@ column equ $ + 1
     ; Print it onto the screen.
     jp i25_print
 
+i25_message:
+    ds 9
+
 include "plot.asm"
 include "../i25.asm"

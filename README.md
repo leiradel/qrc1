@@ -40,6 +40,7 @@ The QR Code version 11 encoder was contributed by [Daniel A. Nagy](https://githu
 
 ### Code 2 of 5
 
+1. Define `i25_message` in RAM with 1 plus the maximum message size that will be needed
 1. Implement the same routines for your platform as the QR Code version 1
 1. Set the byte at `i25_message` to the message length; it must be even and the maximum length is only limited by the screen size though 254 is a hard limit imposed by the byte
 1. Write the message ASCII digits after the length
