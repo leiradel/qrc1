@@ -27,4 +27,4 @@ i25_message:
     ds 17
 
 include "plot.asm"
-include "../i25.asm"
+include "../i25_rom.asm"
