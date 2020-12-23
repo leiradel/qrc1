@@ -28,4 +28,5 @@ main:
     ret
 
 include "plot.asm"
-include "../qrc1.asm"
+include "../qrc1_rom.asm"
+include "../qrc1_ram.asm"

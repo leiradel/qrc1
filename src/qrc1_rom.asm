@@ -426,21 +426,6 @@ qrc1_print_cmds:
     db qrc1_cmd_bit_up_8    << 4 | qrc1_cmd_uturn_down
     db qrc1_cmd_bit_down_8  << 4 | qrc1_cmd_print_ended
 
-; The ECC level M polynomial.
-qrc1_ecc_poly:
-    db 1, 216, 194, 159, 111, 199, 94, 95, 113, 157, 193
-    db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-
-; The message, it'll be encoded in place.
-qrc1_message:
-    db 0  ; Message length
-    ds 15 ; Message
-    ds 10 ; Computed ECC
-
-; Some scratch bytes.
-qrc1_scratch:
-    ds 16
-
 ; The fixed modules encoded in binary. The checkerboard mask is already
 ; included, so there's no separate masking operation.
 qrc1_fixed_modules:

@@ -66,4 +66,5 @@ xlate_table:
     db 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
 
 include "plot.asm"
-include "../qrc1.asm"
+include "../qrc1_rom.asm"
+include "../qrc1_ram.asm"
